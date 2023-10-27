@@ -12,7 +12,7 @@
         key_name: root-01
         instance_type: t2.micro
         # We have a preexisting SG
-        security_group: mysg2410
+        security_group: 22-80-8080
         wait: yes
         network:
           assign_public_ip: true
