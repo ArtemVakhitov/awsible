@@ -35,3 +35,54 @@
         name: "{{ item.public_ip_address }}"
         groups: "{{ item.tags.ansible }}"
       with_items: "{{ ec2.instances }}"
+
+- name: Build boxfuse
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: Ensure necessary packages are present
+    apt:
+      update_cache: true
+      name:
+        - git
+        - maven
+      state: present
+
+  - name: Clone boxfuse repo
+    git:
+      repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+      dest: /src/boxfuse-sample-java-war-hello
+
+  - name: Build boxfuse using maven
+    shell:
+      chdir: /src/boxfuse-sample-java-war-hello/
+      executable: /bin/bash
+      cmd: mvn package
+      creates: /src/boxfuse-sample-java-war-hello/target/hello-1.0.war
+
+  - name: Fetch built WAR from build host
+    fetch:
+      src: /src/boxfuse-sample-java-war-hello/target/hello-1.0.war
+      dest: /tmp/
+      flat: yes
+
+- name: Launch boxfuse app in tomcat
+  hosts: prod
+  become: yes
+
+  tasks:
+  - name: Ensure tomcat pkg is present
+    apt:
+      name: tomcat8
+      state: present
+
+  - name: Copy built WAR to app host
+    copy:
+      src: /tmp/hello-1.0.war
+      dest: /var/lib/tomcat8/webapps/
+
+  - name: Ensure tomcat is up and running
+    service:
+      name: tomcat8
+      state: started
