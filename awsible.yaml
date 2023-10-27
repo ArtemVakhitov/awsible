@@ -4,6 +4,7 @@
   connection: local
   tasks:
     - name: Start an instance with a public IP address
+      # Auth data are stored with awscli
       amazon.aws.ec2_instance:
         name: "ansible-{{ item }}"
         region: us-east-1
