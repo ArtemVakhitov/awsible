@@ -34,11 +34,14 @@
       add_host:
         name: "{{ item.public_ip_address }}"
         groups: "{{ item.tags.ansible }}"
+        ansible_host: "{{ item.public_ip_address }}"
+        ansible_user: ubuntu  # Specify the "ubuntu" user for SSH
       with_items: "{{ ec2.instances }}"
 
 - name: Build boxfuse
   hosts: build
   become: yes
+  become_user: root
 
   tasks:
   - name: Ensure necessary packages are present
@@ -70,6 +73,7 @@
 - name: Launch boxfuse app in tomcat
   hosts: prod
   become: yes
+  become_user: root
 
   tasks:
   - name: Ensure tomcat pkg is present
