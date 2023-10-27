@@ -1,0 +1,36 @@
+---
+- name: Start instances, add to inventory
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Start an instance with a public IP address
+      amazon.aws.ec2_instance:
+        name: "ansible-{{ item }}"
+        region: us-east-1
+        # We have a preexisting key
+        key_name: root-01
+        instance_type: t2.micro
+        # We have a preexisting SG
+        security_group: mysg2410
+        wait: yes
+        network:
+          assign_public_ip: true
+        image_id: ami-0261755bbcb8c4a84
+        tags:
+          ansible: "{{ item }}"
+      with_items:
+        - build
+        - prod
+
+    - name: Get host info
+      amazon.aws.ec2_instance_info:
+        filters:
+          instance-state-name: [ "pending", "running" ]
+          "tag:ansible": [ "build", "prod" ]
+      register: ec2
+
+    - name: Create in-memory inventory for EC2 hosts
+      add_host:
+        name: "{{ item.public_ip_address }}"
+        groups: "{{ item.tags.ansible }}"
+      with_items: "{{ ec2.instances }}"
