@@ -23,6 +23,7 @@
         - build
         - prod
 
+      # Assume that no other hosts with tags "ansible: build/prod" exist
     - name: Get host info
       amazon.aws.ec2_instance_info:
         filters:
