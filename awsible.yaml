@@ -14,6 +14,7 @@
         # We have a preexisting SG
         security_group: 22-80-8080
         wait: yes
+        state: running
         network:
           assign_public_ip: true
         image_id: ami-0261755bbcb8c4a84
@@ -27,7 +28,7 @@
     - name: Get host info
       amazon.aws.ec2_instance_info:
         filters:
-          instance-state-name: [ "pending", "running" ]
+          instance-state-name: [ "running" ]
           "tag:ansible": [ "build", "prod" ]
       register: ec2
 
