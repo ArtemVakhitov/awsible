@@ -81,6 +81,7 @@
 
   tasks:
   - name: Ensure tomcat pkg is present
+    update_cache: true
     apt:
       name: tomcat9
       state: present
